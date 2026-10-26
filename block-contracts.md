@@ -45,8 +45,8 @@ All blocks return a JSON object in the agent's working memory before composites 
 
 ## read_cache_state
 - **Permission:** read
-- **Tools:** `pressidium_cache_settings` get page+object; `pressidium_cdn` if hosting
-- **Snapshot:** `{ pageCache, objectCache, cdnEnabled? }`
+- **Tools:** `pressidium_cache_settings` get page+object
+- **Snapshot:** `{ pageCache, objectCache, cdnEnabled: true }` on hosting (CDN included by default; do not call a CDN tool)
 
 ## read_cert_dns_state
 - **Permission:** read

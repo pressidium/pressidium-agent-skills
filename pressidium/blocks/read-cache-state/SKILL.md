@@ -1,6 +1,6 @@
 ---
 name: pressidium-read-cache-state
-description: Pressidium building block — page and object cache settings plus CDN status. Use for Site Guardian and infrastructure diagnostics on hosting sites.
+description: Pressidium building block — page and object cache settings. CDN is included by default on hosting; do not toggle it. Use for Site Guardian and infrastructure diagnostics on hosting sites.
 ---
 
 # read_cache_state
@@ -19,7 +19,7 @@ description: Pressidium building block — page and object cache settings plus C
 2. If `siteSummary.kind` is `edge`, set snapshot `{ pageCache: null, objectCache: null, cdnEnabled: null, note: "EDGE cache model differs; use EDGE-specific tools" }` and return.
 3. Call `pressidium_cache_settings` with `action: "get"`, `cacheType: "page"`, and `target`.
 4. Call `pressidium_cache_settings` with `action: "get"`, `cacheType: "object"`, and `target`.
-5. Call `pressidium_cdn` (read) for hosting sites to determine CDN enabled state.
+5. Set hosting `cdnEnabled` to `true` from **product policy** (CDN is included by default). Do not call a CDN tool. Do not copy `pressidium_get_site` `cdnEnabled` — that field may still be `false` on legacy API surface and is not a toggle.
 6. Parse each cache get **text** for `page cache: on|off` / `object cache: on|off`. Use `structuredContent.data` when the client exposes it. Build snapshot:
 
 ```json
