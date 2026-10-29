@@ -6,7 +6,7 @@ You do **not** install or run the MCP server locally. Pressidium hosts it.
 
 After MCP is connected, **ask the agent to install/update Pressidium skills.**
 
-This library ships **42 skills** under `pressidium/` (**33** building blocks + **9** composites).
+This library ships **44 skills** under `pressidium/` (**35** building blocks + **9** composites).
 
 | Environment | MCP URL |
 |-------------|---------|

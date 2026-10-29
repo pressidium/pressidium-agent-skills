@@ -155,6 +155,13 @@ All blocks return a JSON object in the agent's working memory before composites 
 - **Snapshot:** `{ target, sshService }` — prefer tool **text** (`enabled=`, `host=`, `port=`, `username=`, `ssh -p` line)
 - **Note:** EDGE → stop. Missing `sshService` is `enabled=unknown`, not an error.
 
+## read_sftp_state
+- **Permission:** read
+- **Tools:** `pressidium_sftp_users` `action: connection`
+- **Input:** `{ website: string, environment?: "production"|"staging" }` — hosting only
+- **Snapshot:** `{ target, sftpService }` — prefer tool **text** (`host=`, `port=`, `path=`)
+- **Note:** EDGE → stop. Unavailable sentence is a successful empty connection, not an error. Do not invent a username or `sftp -P` line.
+
 ## Composite: site_guardian
 
 Parent skill: `.cursor/skills/pressidium/composites/site-guardian/SKILL.md`
@@ -298,6 +305,12 @@ If those 10 were unconfirmed live-job probes, say the Dashboard API may be unhea
 - **Tools:** `pressidium_backups` action `create`, `wait: true`
 - **Snapshot:** `{ submitted, jobId, jobStatus, backupId? }`
 - **Agent note:** Parse `jobStatus=` from tool **text** (not the headline). After `wait: true`, follow **await_job loop** in `docs/skills/block-contracts.md`. Resume with `pressidium_operations` `action: await_job` and this `jobId`. Proceed to updates only if `jobStatus` is `success` after the wait loop. On success parse `backupId=` / `createdOn=`. If `isError` and text contains `jobStatus=success`, do **not** create again.
+
+## act_create_sftp_user
+- **Permission:** low-risk write
+- **Tools:** `pressidium_sftp_users` action `create`, `wait: true`; on confirmed success may call `action: connection`
+- **Snapshot:** `{ submitted, jobId, jobStatus, sftpService? }`
+- **Rule:** Operator supplies username and password; never invent; never print the password. Hosting only. Parse `jobStatus=` from tool **text**. Creation is confirmed only by `jobStatus=success`. If `jobStatus=success` from a finished wait, print tokens / `sftp -P` from create text (or `connection` if tokens are missing); stop without `await_job`. Do **not** treat a missing job ID as success — SFTP create without a job ID is `unknown`. If `jobStatus=running` **and** a `jobId` is present, follow **await_job loop** in `docs/skills/block-contracts.md`. Resume with `pressidium_operations` `action: await_job` and this `jobId`. After the loop, if still `running`, tell the user `jobId` / `await_job`; on `success`, call `connection` and print tokens plus the command from the submitted username. If `running` with no `jobId`, do not call `await_job`; report the wait status; suggest `read-sftp-state`. If the **initial** result is `jobStatus=unknown` **and** text says the result could not be confirmed (`could not be confirmed` / `probeFailed` / unconfirmed) **and** a `jobId` is present: one `await_job`. On `success`, call `connection`. If that retry returns `running` with a `jobId`, continue the canonical loop; count the retry toward the ceiling of 10 and do not reset the one-unconfirmed-retry allowance. If the retry remains `unknown` or `error`, stop. Never re-POST create to recover job status. Ordinary `unknown` (no unconfirmed language) or `unknown` / `running` without a `jobId`: stop; do not claim creation succeeded. `read-sftp-state` may report host/port/path only.
 
 ## act_purge_cache
 - **Permission:** low-risk write
