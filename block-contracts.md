@@ -9,8 +9,8 @@ All blocks return a JSON object in the agent's working memory before composites 
 ## read_site_identity
 - **Permission:** read
 - **Tools:** `pressidium_whoami`, `pressidium_list_sites` (optional), `pressidium_get_site`
-- **Input:** `{ website?: string, siteId?: string|number, environment?: "production"|"staging" }`
-- **Snapshot:** `{ user, target, siteSummary }`
+- **Input:** `{ website?: string, siteId?: string|number, environment?: "production"|"staging", kind?: "hosting"|"edge" }` — `kind` only with `website`
+- **Snapshot:** `{ user, target, siteSummary }` — `target` is XOR-valid: hosting `{ website, environment, kind: "hosting" }` or EDGE `{ siteId }` only (EDGE display name on `siteSummary.name`, not on `target`)
 
 ## read_staging_state
 - **Permission:** read
@@ -161,6 +161,14 @@ All blocks return a JSON object in the agent's working memory before composites 
 - **Input:** `{ website: string, environment?: "production"|"staging" }` — hosting only
 - **Snapshot:** `{ target, sftpService }` — prefer tool **text** (`host=`, `port=`, `path=`)
 - **Note:** EDGE → stop. Unavailable sentence is a successful empty connection, not an error. Do not invent a username or `sftp -P` line.
+
+## act_install_ai_kit
+- **Permission:** guidance (agent filesystem after user confirm; not a Dashboard write)
+- **Tools:** `pressidium_ai_kit` only for URLs/rules. Optional `pressidium_get_site` / `read-site-identity` only for hosting vs EDGE and slug — not required if the user already named a hosting site.
+- **Input:** `{ website?: string }` on `pressidium_ai_kit` — not a Target resolver
+- **Snapshot:** none (pointer text). Zip `https://github.com/pressidium/pressidium-ai-kit/releases/latest/download/pressidium-ai-kit.zip`; version file `VERSION`
+- **Write sequence:** Confirm → download to temp → validate → recheck destination is still missing/empty → unpack → cleanup → setup/provision reminder. If that final occupancy recheck fails, stop and delete temp files without writing the destination. New-folder update skips a second download.
+- **Note:** Hosting only. No in-place replace. Do not unpack into skills directories. Do not run `./remote setup` or `./remote provision`. File/shell + confirmed kit → `./remote`; do not re-enter update-check. Composites must not invoke this block. Update preflight: `./remote doctor` and `./remote info` in the old folder; stop if provision unfinished, mount live/starting/dirty/unknown, or status uncertain.
 
 ## Composite: site_guardian
 

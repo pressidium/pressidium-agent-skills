@@ -6,7 +6,7 @@ You do **not** install or run the MCP server locally. Pressidium hosts it.
 
 After MCP is connected, **ask the agent to install/update Pressidium skills.**
 
-This library ships **44 skills** under `pressidium/` (**35** building blocks + **9** composites).
+This library ships **45 skills** under `pressidium/` (**36** building blocks + **9** composites).
 
 | Environment | MCP URL |
 |-------------|---------|
@@ -220,6 +220,31 @@ Declining a check downloads nothing. Declining replacement leaves the existing t
 Claude Desktop: do not unzip into a Desktop skills directory. Use the upload steps in section 4.
 
 After success, the agent reports installed `VERSION`. A new chat may be required. Confirm the product **lists** nested skills such as `read-site-identity` and `site-guardian` — file presence is not enough.
+
+---
+
+## Layer B — site workspace kit (`pressidium_ai_kit`)
+
+Skills (section 3) answer dashboard questions. The **site workspace kit** is a separate zip for files, WP-CLI, SQL, and SFTP/SSH on **managed hosting** (not EDGE).
+
+`pressidium_ai_kit` is a **read-only pointer**. It returns `https://github.com/pressidium/pressidium-ai-kit/releases/latest/download/pressidium-ai-kit.zip` and archive-root `VERSION`. It does **not** download or write files. Call this tool for the zip URL and rules; do not guess GitLab public/ or the skills Release zip.
+
+After MCP is connected, say in agent chat:
+
+> Install the Pressidium site workspace kit for **myblog**.
+
+or accept the agent's offer. Default destination is a **new** folder `~/pressidium-sites/myblog` (ask first; `{slug}` is a single path component). The agent does **not** replace an existing kit folder in place.
+
+Write sequence after you confirm: download to temp → validate → recheck the folder is still missing or empty → unpack → cleanup. If that last check fails, nothing is written.
+
+Then **you** run in a terminal, in that folder:
+
+```bash
+./remote setup
+./remote provision
+```
+
+The agent must not run those commands. Manual unzip of the same URL is valid; put `VERSION` and `remote` at the folder root.
 
 ---
 
